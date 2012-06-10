@@ -1,0 +1,17 @@
+package org.neo4j.datasource.java;
+
+import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLJPanel;
+
+public class JoglFrame extends GLJPanel {
+
+    public JoglFrame() {
+        super(createCaps());
+    }
+
+    private static GLCapabilities createCaps() {
+        GLCapabilities caps = new GLCapabilities();
+        caps.setAlphaBits(8);
+        return caps;
+    }
+}

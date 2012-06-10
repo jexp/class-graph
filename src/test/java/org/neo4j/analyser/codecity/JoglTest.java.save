@@ -1,0 +1,10 @@
+package org.neo4j.datasource.java;
+
+import org.junit.Test;
+
+public class JoglTest {
+    @Test
+    public void testJogl() {
+        new JoglFrame().show();
+    }
+}

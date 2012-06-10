@@ -1,0 +1,267 @@
+<html>
+<head>
+    <title>StreamLine Brainstorming Rickard and Michael</title>
+</head>
+<body>
+<h1>StreamLine Brainstorming Rickard and Michael</h1>
+
+<h2>Basic Building Blocks</h2>
+
+<p>
+    We use a nodespaces of semistructured data to represent each item contained in the application as a
+    changelog of Quadruples (4 Dimensions) of <a href="#person">Person</a>, <a href="#location">Location</a>
+    , <a href="#time">Time</a> and <a href="#content">Content</a>.
+    This Quadruple is called <strong>Change</strong>.
+</p>
+
+<p>
+    The number of changes that forms a document or communication is called ChangeLog/Stream/ChangeStream/ChangeTree.
+    In its simplest form it contains only a single entry. A linear thread of changes forms a stream. Whereas a realistic
+    representation forms a tree originating at the starting root entry and branching off as parallel versions are
+    created. If versions are merged again this tree evolves to a graph or network of changes. Each change within a
+    stream must be additionally identified by a version number.<br/>
+    Each change also has a direct relationship to the node representing the whole stream which also contains the
+    properties
+    and relationships that are valid (and immutable) for the whole stream.
+</p>
+
+<p>
+    The person making the change is perhaps not directly connected to the change but rather as
+    <strong>contributor</strong>
+    containing a link to the person and a second to a role in which the contribution was made. Its also possible that
+    multiple persons made a change at the same time. The location of these persons then would also be attached rather
+    to the contributor node than to the change node.
+</p>
+
+<p>
+    The core of the framework is a very fast store for Changes which maintains a HEAD revision. Filtering,
+    querying the store for different projections of the stream.
+</p>
+
+<p>
+    All changes in the system form a cloud in the named four dimensions which can be filtered, queried, projected and
+    represented according to the requirements of the usecase. The perspectives and views choosen to represent the
+    projected change are also not restricted.
+</p>
+
+<p> Using a REST based approach which separates internal models from the
+    external representations that are made available to the clients allows a multitude of representations without
+    coupling these to the internal handling of the model. So for instance displaying a document as mindmap,
+    text-processor document or version history is just a question of the choosen representations.
+    Representations could also include highly interactive and visual approaches. See Parallax Freebase for massive
+    interactive querying and the Vimeo Code Swarm Visualization for SVN repository histories.
+</p>
+
+<p>
+    The basic approach should be considered as similar to a distributed source control management system (like git or
+    mercurial). For offline work local copies of the repository with all the functionality must be available.
+    Individuals
+    have the responsibility and possibility of deciding which of their locally stored change-set are published to
+    the public stores or other personal stores. Change identification doesn't rely on files and their attributes but
+    rather on internal representations (kind of hashes) of the documents edited.
+</p>
+
+<p>
+    Another idea regarding the processing of changes is the application of tree and graph theory also for applying and
+    merging changes. Transforming content and changes into parsed tree representations (AST) allows a much more easy
+    merging that with current text only based diff tools. (See refactoring on the AST/PSI in IntelliJ)
+    <strong>But even then generating, applying and merging the changes is the main challenge of this kind of
+        application.</strong>
+</p>
+
+<p>
+    Graph based approaches allow us to store semi-structured data. Therefore no two data sets stored in the node
+    space must be of equal structure. For keeping type information and other aggregating structures we can use
+    specialized
+    type nodes which hold connections to all nodes of a certain type. With the relationship based approach to typing
+    multiple typing is very easy and attaching additional information on the type itself is also provided.
+    Concrete nodes and their types form spheres of interest which can be easily accessed by traversing the nodespace
+    either
+    inside out from the change or outside in from the type nodes.<br/>
+    <br/>
+    Graph databases allow us fast retrieval and traversal of large structures. Supporting functionality for searching
+    and filtering comes from full text retrieval systems /indexers like lucene.<br/>
+    All access to the graph database is fully transactional so that multithreaded access poses no problem.<br/>
+    As our data structures will be so simple a tuple space based solution for scaling is also possible (e.g. GigaSpaces,
+    Coherence).
+</p>
+
+<p>
+    The change will rely on an universal id at the center. All other data is added in addional layers. First core state
+    and types and then the data, types and behaviour that come with the patterns/principles (implemented by
+    concerns and sideeffects of the application domain).
+</p>
+
+<h3>Basic associated Node Types of a Change</h3>
+<a name="person"/>
+
+<h3>Person</h3>
+<h4>Attributes</h4>
+<ul>
+    <li>Name</li>
+    <li>Portrait</li>
+    <li>openId</li>
+    <li>public key</li>
+</ul>
+<h4>Relationships</h4>
+<ul>
+    <li>
+
+    </li>
+</ul>
+<a name="location"/>
+
+<h3>Location</h3>
+
+<p>
+    Location is the place where the change was made. Can be derived using GPS, IP-Lookup, WLAN-Lookup, Mobile-Tracing
+    whatever.
+</p>
+
+<h4>Attributes</h4>
+<ul>
+    <li>gps coordinates</li>
+    <li>address - perhaps rather node than attribute</li>
+</ul>
+<h4>Relationships</h4>
+<ul>
+    <li>other nodes regarding locality: city, country, addresses</li>
+</ul>
+<a name="time"/>
+
+<h3>Time</h3>
+
+<p>
+    Time is represented as (second) nodes in the nodespace. Only the time nodes that are actually needed by the changes
+    are created.<br/>
+</p>
+<h4>Time nodes form a node hierarchy.</h4>
+<ol>
+    <li>Second</li>
+    <li>Minute</li>
+    <li>Hour</li>
+    <li>day of month</li>
+    <li>month</li>
+    <li>year</li>
+    <li>epoch</li>
+</ol>
+<h4>Attributes</h4>
+<ul>
+    <li>actual timestamp in gmt</li>
+</ul>
+<h4>Relationships</h4>
+<ul>
+    <li>parent time hierarchy nodes</li>
+    <li>incoming: nodes that occur at this timestamp</li>
+</ul>
+
+<a name="content"/>
+
+<h3>Content</h3>
+
+<p>
+    Content is the data that was produced at this timestamp by this person at this location. It is normally
+    a part of a larger stream of content (diffs) that form documents or communication.
+    The content is stored as a log and at the same time a HEAD revision is maintainted as the current representation
+    of the accumulated changes.
+</p>
+<h4>Immutability and Security</h4>
+
+<p>
+    Content is immutable and may be digitally signed (using the public key of the associated person and can be encrypted
+    if needed.
+</p>
+<h4>Attributes</h4>
+<ul>
+    <li>metadata</li>
+    <li>size</li>
+    <li>mime type</li>
+</ul>
+<h4>Relationships</h4>
+<ul>
+    <li>time</li>
+    <li>person</li>
+    <li>location</li>
+    <li>tag</li>
+    <li>document/communication/</li>
+</ul>
+
+<h2>Values, Principles and Patterns/Practices</h2>
+
+<p>
+    A system of <strong>values</strong> is the basis for every domain. Derived from that are <strong>principles</strong>
+    that are the general rules of effective work in this domain. The concrete, applicable <strong>practices and
+    patterns</strong> are developed based on these principles in a certain context with individual forces that must be
+    balanced to achieve the desired outcome.<br/>
+    (Design-)Patterns describe roles and relationships. The same goes for concerns of an application domain (e.g.
+    workflow).<br/>
+    So what we want to do ist to explore the value system of the targeted application domain and look for existing
+    principles and patterns and apply them as concerns and sideeffects to our existing basic framework. Each concern
+    might bring along further behaviour and/or data that is added to the basic entities.
+    <strong>When concerns change, the data does not go away but rather stays available
+        - Model Change does not require instance change</strong>
+</p>
+<h4>Literature</h4>
+<ul>
+    <li>Christopher Alexander - A Timeless Way of Building</li>
+    <li>Kevlin Henney et al - Patterns of Software Architecture 5</li>
+    <li>Kent Beck - eXtreme Programming - Explained</li>
+</ul>
+
+<h1>Applications on top</h1>
+
+<h2>Potential Applications</h2>
+
+<h3>Workflow Management - StreamFlow</h3>
+
+<p>Workflow Management is a important issue in governental institutions and companies. Existing
+    solutions are not sufficient and much to complex. A simpler and more flexible approach is needed that is able to
+    include
+</p>
+<h4>Intented Features</h4>
+<ul>
+    <li>Immutable Change Log at the core</li>
+    <li>Multitude of representations</li>
+    <li>Fast retrieval and querying</li>
+    <li>Fast handling of merges, projections</li>
+    <li>Easy extension with concerns and sideeffects derived from the best working practices of the domain
+        <ul>for instance
+            <li>Signing, Encryption with PKI</li>
+            <li>Roles and role based ACLs</li>
+        </ul>
+    </li>
+</ul>
+<h4>Previous thingking about workflow (partially outdated)</h4>
+<h5>what belongs to a task</h5>
+<ul>
+    <li>Content and its Content-Types</li>
+    <li>Task as basic data</li>
+    <li>People</li>
+    <li>Communication</li>
+    <li>Type</li>
+    <li>Metadata</li>
+    <li>Attributes</li>
+    <li>Relationships</li>
+</ul>
+
+<h3>Software Development - StreamSource</h3>
+
+<p>We want to use the software as dogfood / bootstrapping application for its own distributed
+    development. So that we get annoyed by incomplete, inconsitent, unusable features and will fix them.
+</p>
+<ul>
+    <li>Source Code Management</li>
+    <li>Agile Methodologies
+        <ul>
+            <li>Backlog</li>
+            <li>Communication</li>
+            <li>Estimation</li>
+            <li>Planning</li>
+            <li>...</li>
+        </ul>
+    </li>
+    <li>Task / Issue Management</li>
+    <li>Analysis</li>
+</ul>
+</body>
+</html>
