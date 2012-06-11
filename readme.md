@@ -33,6 +33,8 @@ e.g.
                         method-[:RETURN_TYPE]->return_type
                         method-[:THROWS]->exception
 
+![graph model](https://raw.github.com/jexp/class-graph/master/model.png)
+
 ## sample cypher queries
 
     (might need to increase memory in `neo4j-shell` e.g. `EXTRA_JVM_ARGUMENTS="-Xmx2G -server -d64"`)
