@@ -43,14 +43,13 @@ public class DefaultStatistics<E extends Enum<E>> implements Statistics<E> {
         private long totalInMillis;
 
         private final String token;
-        private static final int NANOSECONDS = 1000 * 1000;
 
         public TimeInfo(final String token) {
             this.token = token;
         }
 
         public void start() {
-            start = System.nanoTime();
+            start = System.currentTimeMillis();
         }
 
         public void reset() {
@@ -60,7 +59,7 @@ public class DefaultStatistics<E extends Enum<E>> implements Statistics<E> {
         public long addTotal() {
             delta=-1;
             if (start >= 0) {
-                delta = (System.nanoTime() - start) / NANOSECONDS;
+                delta = (System.currentTimeMillis() - start);
                 totalInMillis += delta;
             }
             return delta;

@@ -8,7 +8,7 @@ import org.neo4j.datasource.java.declaration.ClassDeclaration;
 public class ClassInspectorTest extends TestCase {
     @Test
     public void testInspectObject() {
-        final ClassDeclaration classDeclaration = new RecordingInspector().inspectClass(Object.class);
+        final ClassDeclaration classDeclaration = new RecordingInspector().inspectClass(String.class);
         assertEquals("isObject","java.lang.String", classDeclaration.getName());
         System.out.println("classInfo.getMethods() = " + classDeclaration.getMethods().values());
         System.out.println("classInfo.getFields() = " + classDeclaration.getFields().values());

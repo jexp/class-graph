@@ -3,6 +3,7 @@ package org.neo4j.datasource.java.analyser;
 import org.objectweb.asm.ClassReader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ public abstract class ClassInspector<R> {
             return classes.get(slashClassName);
         }
         ClassReader classReader = createClassReader(slashClassName);
+        if (classReader==null) return null;
         final RecursingClassVisitor<R> classVisitor = createVisitor();
         classReader.accept(classVisitor, 0);
         classes.put(slashClassName, classVisitor.get());
@@ -39,7 +41,12 @@ public abstract class ClassInspector<R> {
         assert slashClassName != null;
         URL classResource = classFileLocator.resolveClassName(slashClassName);
         try {
-            return new ClassReader(classFileLocator.getStreamFromURL(classResource));
+            InputStream streamFromURL = classFileLocator.getStreamFromURL(classResource);
+            if (streamFromURL==null) {
+                System.err.println("File not found for "+slashClassName);
+                return null;
+            }
+            return new ClassReader(streamFromURL);
         } catch (IOException e) {
             throw new RuntimeException("Error creating ClassReader for class " + slashClassName);
         }

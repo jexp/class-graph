@@ -8,6 +8,10 @@ import org.objectweb.asm.*;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class RecordingClassVisitor extends ClassAdapter implements RecursingClassVisitor<ClassDeclaration> {
     private ClassDeclaration classDeclaration;
@@ -24,7 +28,7 @@ public class RecordingClassVisitor extends ClassAdapter implements RecursingClas
     @Override
     public void visit(int version, int access, String name, String signature,
                       String superName, String[] interfaces) {
-        if (classDeclaration == null) classDeclaration = declarationFactory.createClassInfo(name);
+        if (classDeclaration == null) classDeclaration = declarationFactory.createClassInfo(name,access);
         if (superName != null) { // todo filter
             classDeclaration.setSuperClass(classInspector.inspectClass(superName));
         }
@@ -40,10 +44,13 @@ public class RecordingClassVisitor extends ClassAdapter implements RecursingClas
                                      String signature, String[] exceptions) {
         final Collection<String> params = getParamTypes(desc);
         final String returnType = getReturnType(desc);
-        final MethodDeclaration methodDeclaration = declarationFactory.createMethodInfo(access, name, params, returnType);
+        List<String> exceptionList = exceptions == null ? Collections.<String>emptyList() : asList(exceptions);
+        final MethodDeclaration methodDeclaration = declarationFactory.createMethodInfo(access, name, params, returnType, exceptionList);
         classDeclaration.addMethod(methodDeclaration);
         return null;
     }
+
+
 
     @Override public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         final String typeName = Type.getType(desc).getClassName();

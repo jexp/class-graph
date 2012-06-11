@@ -5,6 +5,7 @@ import org.neo4j.data.file.FileSystemVisitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -14,6 +15,9 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 public class ClassFileIterator {
+
+    public static final int CLASS_LENGTH = ".class".length();
+
     public void iterateJar(String jarLocation, ClassInspector<?> classInspector) {
         if (jarLocation == null) throw new IllegalArgumentException("JarLocation must not be null");
         for (String classFileName : getClassFileNames(jarLocation)) {
@@ -79,7 +83,6 @@ public class ClassFileIterator {
     public String getJarLocationByClass(final String className) {
         final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         final String classFileName = ClassInspectUtils.toSlashName(className) + ".class";
-        System.out.println("classFileName = " + classFileName);
         final URL url = classLoader.getResource(classFileName);
         final String path = getPathFromUrl(url);
         if (path.endsWith("/" + classFileName)) {
@@ -97,7 +100,7 @@ public class ClassFileIterator {
             return path;
         } else {
             try {
-                return new URL(path).getPath();
+                return URLDecoder.decode(new URL(path).getPath());
             } catch (MalformedURLException e) {
                 throw new RuntimeException("Error parsing url " + path, e);
             }
@@ -119,10 +122,10 @@ public class ClassFileIterator {
 
         @Override public void handle(final File file) {
             if (!file.isDirectory() && file.getName().endsWith(".class")) {
-                final String filePath = file.getPath();
-                if (filePath.startsWith(basePath))
-                    classFiles.add(filePath.substring(basePath.length()+1));
-                classFiles.add(filePath);
+                String filePath = file.getPath();
+                if (filePath.startsWith(basePath)) filePath = filePath.substring(basePath.length()+1);
+                int length = filePath.length();
+                classFiles.add(filePath.substring(0,length - CLASS_LENGTH));
             }
         }
 

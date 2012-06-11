@@ -49,13 +49,13 @@ public class NeoClassDeclaration implements ClassDeclaration {
 
     public void addInterface(final ClassDeclaration classDeclaration) {
         final Node interfaceNode = ((NeoClassDeclaration) classDeclaration).getNode();
-        node.createRelationshipTo(interfaceNode,ClassRelations.INTERFACE_TYPE);
+        node.createRelationshipTo(interfaceNode, ClassRelations.INTERFACE_TYPE);
         // interfaceNode.createRelationshipTo(node,ClassRelations.INTERFACE_TYPE);
     }
 
     public void setSuperClass(final ClassDeclaration classDeclaration) {
         final Node superNode = ((NeoClassDeclaration) classDeclaration).getNode();
-        node.createRelationshipTo(superNode,ClassRelations.SUPER_TYPE);
+        node.createRelationshipTo(superNode, ClassRelations.SUPER_TYPE);
         // superNode.createRelationshipTo(node,ClassRelations.SUPER_TYPE);
     }
 

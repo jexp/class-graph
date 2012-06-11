@@ -10,14 +10,16 @@ import java.io.Serializable;
 public class MethodDeclarationBean implements MethodDeclaration, Serializable {
     private final String name;
     private final Collection<String> params;
+    private final Collection<String> exceptions;
     private final String returnType;
     private final int access;
 
-    public MethodDeclarationBean(int access, String name, String returnType, final Collection<String> params) {
+    public MethodDeclarationBean(int access, String name, String returnType, final Collection<String> params, Collection<String> exceptions) {
         this.access = access;
         this.returnType = returnType;
         this.name = name;
         this.params = params;
+        this.exceptions = exceptions;
     }
 
     public String getName() {
@@ -34,6 +36,11 @@ public class MethodDeclarationBean implements MethodDeclaration, Serializable {
 
     public Collection<String> getParams() {
         return params;
+    }
+
+    @Override
+    public Collection<String> getExceptions() {
+        return exceptions;
     }
 
     @Override public String toString() {

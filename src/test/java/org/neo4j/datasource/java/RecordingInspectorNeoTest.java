@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponentBeanInfo;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.neo4j.test.NeoTestHelper.dropNeoDb;
 
 public class RecordingInspectorNeoTest {
@@ -36,13 +37,14 @@ public class RecordingInspectorNeoTest {
         }
         tx.success();
         tx.finish();
-        assertEquals("Files in dt.jar", 43, count);
+        assertTrue("Files in dt.jar", count > 40);
     }
 
     @Test
     public void testIterateClassesJar() throws IOException {
         // /Volumes/ramdisk/
         final String neoStoreName = "classes.jar.neo";
+        Class<?> type = Object.class;
         dropNeoDb(neoStoreName);
         graph = new EmbeddedGraphDatabase(neoStoreName);
         Transaction tx = graph.beginTx();
@@ -51,7 +53,7 @@ public class RecordingInspectorNeoTest {
         inspector.setDeclarationFactory(infoFactory);
         long count = 0;
         final ClassFileIterator fileIterator = new ClassFileIterator();
-        final String jarFileLocation = fileIterator.getJarLocationByClass(Object.class);
+        final String jarFileLocation = fileIterator.getJarLocationByClass(type);
 
         long time = System.currentTimeMillis();
         for (final String classFileName : fileIterator.getClassFileNames(jarFileLocation)) {
@@ -66,12 +68,12 @@ public class RecordingInspectorNeoTest {
                 long delta = (System.currentTimeMillis() - time);
                 System.out.println("count = " + count + " took " + delta + " ms.");
                 System.out.println("infoFactory status: " + infoFactory.toString());
-                time = System.nanoTime();
+                time = System.currentTimeMillis();
             }
         }
         tx.success();
         tx.finish();
-        assertEquals("Files in classes.jar", 20241, count);
+        assertTrue("Files in classes.jar", count>1900);
     }
 
     /*

@@ -21,7 +21,7 @@ public class RecordingInspectorTest {
             inspector.inspectClass(classFileName);
             count++;
         }
-        assertEquals("Files in dt.jar", 43, count);
+        assertEquals("Files in dt.jar", 47, count);
     }
 
     @Test
@@ -49,16 +49,16 @@ public class RecordingInspectorTest {
         final ClassFileIterator fileIterator = new ClassFileIterator();
         final String jarFileLocation = fileIterator.getJarLocationByClass(Object.class);
         long count = 0;
-        long time = System.nanoTime();
+        long time = System.currentTimeMillis();
         for (final String classFileName : fileIterator.getClassFileNames(jarFileLocation)) {
             final T result = inspector.inspectClass(classFileName);
             count++;
             if (count % 500 == 0) {
-                long delta = (System.nanoTime() - time) / 1000 / 1000;
+                long delta = (System.currentTimeMillis() - time);
                 System.out.println("count = " + count + " took " + delta + " ms.");
-                time = System.nanoTime();
+                time = System.currentTimeMillis();
             }
         }
-        assertEquals("Files in classes.jar", 20241, count);
+        assertEquals("Files in classes.jar", 19196, count);
     }
 }

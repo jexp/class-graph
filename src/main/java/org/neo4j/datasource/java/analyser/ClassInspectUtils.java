@@ -20,7 +20,12 @@ public class ClassInspectUtils {
     }
 
     public static String getSignature(final MethodDeclaration methodDeclaration) {
-        return methodDeclaration.getReturnType() + " " + methodDeclaration.getName() + "(" + paramList(methodDeclaration.getParams()) + ")";
+        String result = methodDeclaration.getReturnType() + " " + methodDeclaration.getName() + "(" + paramList(methodDeclaration.getParams()) + ")";
+        Collection<String> exceptions = methodDeclaration.getExceptions();
+        if (!exceptions.isEmpty()) {
+            return result + " throws "+paramList(exceptions);
+        }
+        return result;
     }
 
     private static String paramList(final Collection<String> params) {

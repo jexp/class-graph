@@ -10,12 +10,12 @@ import java.util.Collection;
 public class BeanDeclarationFactory implements DeclarationFactory {
     private int id=2;
 
-    public ClassDeclaration createClassInfo(final String name) {
+    public ClassDeclaration createClassInfo(final String name, int access) {
         return new ClassDeclarationBean(name,id++);
     }
 
-    public MethodDeclaration createMethodInfo(final int access, final String name, final Collection<String> params, final String returnType) {
-        return new MethodDeclarationBean(access, name, returnType, params);
+    public MethodDeclaration createMethodInfo(final int access, final String name, final Collection<String> params, final String returnType, Collection<String> exceptions) {
+        return new MethodDeclarationBean(access, name, returnType, params,exceptions);
     }
 
     public FieldDeclaration createFieldInfo(final int access, final String name, final String typeName) {

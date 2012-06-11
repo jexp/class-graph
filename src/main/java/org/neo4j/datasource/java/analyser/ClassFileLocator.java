@@ -35,6 +35,9 @@ public class ClassFileLocator {
 
     public InputStream getStreamFromURL(final URL url) {
         try {
+            if (url==null) {
+                return null;
+            }
             return new BufferedInputStream(url.openStream());
         } catch (IOException e) {
             throw new RuntimeException("Error reading stream from url "+url,e);

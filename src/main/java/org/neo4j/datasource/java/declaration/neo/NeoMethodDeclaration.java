@@ -35,6 +35,16 @@ public class NeoMethodDeclaration implements MethodDeclaration {
         return result;
     }
 
+    @Override
+    public Collection<String> getExceptions() {
+        final Iterable<Relationship> params = node.getRelationships(ClassRelations.THROWS, Direction.OUTGOING);
+        final Collection<String> result=new LinkedList<String>();
+        for (final Relationship param : params) {
+            result.add(new NeoClassDeclaration(param.getEndNode()).getName());
+        }
+        return result;
+    }
+
     public int getAccess() {
         return (Integer)node.getProperty("access");
     }

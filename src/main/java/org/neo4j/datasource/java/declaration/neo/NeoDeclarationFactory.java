@@ -20,29 +20,32 @@ public class NeoDeclarationFactory implements DeclarationFactory {
         typeNodeFinder = new TypeNodeFinder(graph);
     }
 
-    public ClassDeclaration createClassInfo(final String name) {
-        final Node typeNode = typeNodeFinder.getOrCreateTypeNode(name);
+    public ClassDeclaration createClassInfo(final String name, int access) {
+        final Node typeNode = typeNodeFinder.getOrCreateTypeNode(name,access);
         return new NeoClassDeclaration(typeNode);
     }
 
-    public MethodDeclaration createMethodInfo(final int access, final String name, final Collection<String> params, final String returnType) {
+    public MethodDeclaration createMethodInfo(final int access, final String name, final Collection<String> params, final String returnType, Collection<String> exceptions) {
         final Node methodNode = graph.createNode();
         methodNode.setProperty("access", access);
         methodNode.setProperty("name", name);
-        System.out.println("returnType = " + returnType);
+        //System.out.println("returnType = " + returnType);
         final Node returnTypeNode = typeNodeFinder.getOrCreateTypeNode(returnType);
         methodNode.createRelationshipTo(returnTypeNode, ClassRelations.RETURN_TYPE);
         if (ClassInspectUtils.isArrayType(returnType)) {
             methodNode.createRelationshipTo(returnTypeNode, ClassRelations.TYPE_ARRAY);
         }
         for (String paramName : params) {
-            System.out.println("paramName = " + paramName);
             final Node paramNode = typeNodeFinder.getOrCreateTypeNode(paramName);
             // todo paramNodes, array params
             methodNode.createRelationshipTo(paramNode, ClassRelations.PARAM_TYPE);
         }
+        for (String exception : exceptions) {
+            final Node paramNode = typeNodeFinder.getOrCreateTypeNode(exception);
+            methodNode.createRelationshipTo(paramNode, ClassRelations.THROWS);
+        }
         final NeoMethodDeclaration methodInfo = new NeoMethodDeclaration(methodNode);
-        methodInfo.setSignature(returnType + " " + name + "(" + params + ")");
+        methodInfo.setSignature(returnType + " " + name + "(" + params + ") throws "+exceptions);
         return methodInfo;
     }
 
@@ -50,7 +53,7 @@ public class NeoDeclarationFactory implements DeclarationFactory {
         final Node fieldNode = graph.createNode();
         fieldNode.setProperty("access", access);
         fieldNode.setProperty("name", name);
-        System.out.println("typeName = " + typeName);
+        // System.out.println("typeName = " + typeName);
         final Node typeNode = typeNodeFinder.getOrCreateTypeNode(typeName);
         fieldNode.createRelationshipTo(typeNode, ClassRelations.FIELD_TYPE);
         if (ClassInspectUtils.isArrayType(typeName))

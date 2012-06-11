@@ -12,4 +12,6 @@ public interface MethodDeclaration {
     String getSignature();
 
     Collection<String> getParams();
+
+    Collection<String> getExceptions();
 }

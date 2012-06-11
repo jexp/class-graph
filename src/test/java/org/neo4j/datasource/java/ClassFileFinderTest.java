@@ -33,7 +33,7 @@ public class ClassFileFinderTest extends TestCase {
         System.out.printf("looking for %s in %s",classFile,jarPath);
         boolean classFound = false;
         for (String className : classFileIterator.getClassFileNames(jarPath)) {
-            System.out.println("classNames = " + className);
+            //System.out.println("classNames = " + className);
             if (className.equals(classFile)) classFound = true;
         }
         assertTrue(classFile + " found in " + jarPath, classFound);
@@ -41,7 +41,7 @@ public class ClassFileFinderTest extends TestCase {
 
     @Test
     public void testGetJarLocationByClass() {
-        assertEquals("found in dt.jar", "/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/dt.jar", classFileIterator.getJarLocationByClass("javax/swing/text/JTextComponentBeanInfo"));
+        assertTrue("found in dt.jar", classFileIterator.getJarLocationByClass("javax/swing/text/JTextComponentBeanInfo").startsWith("/Library/Java/JavaVirtualMachines"));
     }
 
     protected void setUp() throws Exception {
