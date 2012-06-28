@@ -47,7 +47,7 @@ public class ClassTraversalTest {
     }
 
     private Node getType(final GraphDatabaseService graph, String name) {
-        name = ClassInspectUtils.toSlashName(name);
+        name = ClassInspectUtils.toClassName(name);
         final TypeNodeFinder nodeFinder = new TypeNodeFinder(graph);
         final Node serializable = nodeFinder.getTypeNode(name);
         assertEquals(name, serializable.getProperty("name"));

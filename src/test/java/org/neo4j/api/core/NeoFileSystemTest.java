@@ -2,6 +2,7 @@ package org.neo4j.api.core;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.data.file.FileHandler;
 import org.neo4j.data.file.FileSystemVisitor;
@@ -58,6 +59,7 @@ public class NeoFileSystemTest {
     }
 
     @Test
+    @Ignore
     public void testTimeFileSystem() {
         neo = new EmbeddedGraphDatabase(NEODB);
         long time = System.currentTimeMillis();

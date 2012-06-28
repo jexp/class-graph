@@ -4,6 +4,7 @@ import org.neo4j.datasource.java.analyser.stats.DefaultStatistics;
 import org.neo4j.datasource.java.analyser.stats.Statistics;
 import org.neo4j.datasource.java.analyser.ClassInspectUtils;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.index.Index;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class TypeNodeFinder {
     private Node typesNode;
     private Node packagesNode;
     private Node packageTreeNode;
+    private Index<Node> packageIndex;
+    private Index<Node> typeIndex;
 
     public Node getOrCreateTypeNode(String name) {
         return getOrCreateTypeNode(name,-1);
@@ -32,6 +35,8 @@ public class TypeNodeFinder {
         this.typesNode = getTypesNode();
         this.packagesNode = getPackagesNode();
         this.packageTreeNode = getPackageTreeNode();
+        this.typeIndex = graph.index().forNodes("types");
+        this.packageIndex = graph.index().forNodes("packages");
     }
 
     public Node getOrCreateTypeNode(String typeName, int access) {
@@ -54,7 +59,7 @@ public class TypeNodeFinder {
     }
 
     private String toStoredTypeName(String typeName) {
-        typeName = ClassInspectUtils.toSlashName(typeName);
+        typeName = ClassInspectUtils.toClassName(typeName);
         typeName = ClassInspectUtils.arrayToClassName(typeName);
         return typeName;
     }
@@ -70,6 +75,7 @@ public class TypeNodeFinder {
         }
         final Node typeNode = graph.createNode();
         typeNode.setProperty("name", typeName);
+        typeIndex.add(typeNode,"name",typeName);
         if (access!=-1) {
             typeNode.setProperty("access",access);
         }
@@ -82,6 +88,7 @@ public class TypeNodeFinder {
         Node packageNode = graph.createNode();
         String packageName = toPackageName(typeName);
         packageNode.setProperty("name", packageName);
+        packageIndex.add(packageNode,"name",packageName);
         packagesNode.createRelationshipTo(packageNode, DynamicRelationshipType.withName(packageName));
         addPackageTree(packageNode, packageName);
         return packageNode;
@@ -136,7 +143,7 @@ public class TypeNodeFinder {
     }
 
     private String toPackageName(String typeName) {
-        int idx = typeName.lastIndexOf("/");
+        int idx = typeName.lastIndexOf(".");
         return idx == -1 ? "default" : typeName.substring(0, idx).replace('/', '.');
     }
 
@@ -156,10 +163,16 @@ public class TypeNodeFinder {
         final Node referenceNode = graph.getReferenceNode();
         final Relationship relationship = referenceNode.getSingleRelationship(type, Direction.OUTGOING);
         if (relationship == null) {
-            final Node categoryNode = graph.createNode();
-            categoryNode.setProperty("name", type.name());
-            referenceNode.createRelationshipTo(categoryNode, type);
-            return categoryNode;
+            final Transaction tx = graph.beginTx();
+            try {
+                final Node categoryNode = graph.createNode();
+                categoryNode.setProperty("name", type.name());
+                referenceNode.createRelationshipTo(categoryNode, type);
+                tx.success();
+                return categoryNode;
+            } finally {
+                tx.finish();
+            }
         } else {
             return relationship.getEndNode();
         }

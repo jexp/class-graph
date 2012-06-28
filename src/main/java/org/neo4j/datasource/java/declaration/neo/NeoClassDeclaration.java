@@ -76,12 +76,12 @@ public class NeoClassDeclaration implements ClassDeclaration {
 
     public void addField(final FieldDeclaration fieldDeclaration) {
         final Node fieldNode = ((NeoFieldDeclaration) fieldDeclaration).getNode();
-        node.createRelationshipTo(fieldNode, ClassRelations.FIELD);
+        node.createRelationshipTo(fieldNode, ClassRelations.FIELD_OF);
         //fieldNode.createRelationshipTo(node, ClassRelations.FIELD);
     }
 
     public Map<String, FieldDeclaration> getFields() {
-        final Iterable<Relationship> fields = node.getRelationships(ClassRelations.FIELD, Direction.OUTGOING);
+        final Iterable<Relationship> fields = node.getRelationships(ClassRelations.FIELD_OF, Direction.OUTGOING);
         Map<String, FieldDeclaration> fieldInfos = new HashMap<String, FieldDeclaration>();
         for (Relationship field : fields) {
             final NeoFieldDeclaration fieldInfo = new NeoFieldDeclaration(field.getEndNode());
